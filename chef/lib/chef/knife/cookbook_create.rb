@@ -75,6 +75,7 @@ class Chef
         readme_format = ((config[:readme_format] != "false") && config[:readme_format]) || "md"
         create_cookbook(cookbook_path,cookbook_name, copyright, license)
         create_readme(cookbook_path,cookbook_name,readme_format)
+        create_changelog(cookbook_path,cookbook_name)
         create_metadata(cookbook_path,cookbook_name, copyright, email, license,readme_format)
       end
 
@@ -179,6 +180,28 @@ EOH
         end
       end
 
+      def create_changelog(dir, cookbook_name)
+        msg("** Creating CHANGELOG for cookbook: #{cookbook_name}")
+        unless File.exists?(File.join(dir,cookbook_name,'CHANGELOG.md'))
+          open(File.join(dir, cookbook_name, 'CHANGELOG.md'),'w') do |file|
+            file.puts <<-EOH
+# CHANGELOG for #{cookbook_name}
+
+This file is used to list changes made in each version of #{cookbook_name}.
+
+## 0.1.0:
+
+* Initial release of #{cookbook_name}
+
+- - - 
+Check the [Markdown Syntax Guide](http://daringfireball.net/projects/markdown/syntax) for help with Markdown.
+
+The [Github Flavored Markdown page](http://github.github.com/github-flavored-markdown/) describes the differences between markdown on github and standard markdown.
+EOH
+          end
+        end
+      end
+
       def create_readme(dir, cookbook_name,readme_format)
         msg("** Creating README for cookbook: #{cookbook_name}")
         unless File.exists?(File.join(dir, cookbook_name, "README.#{readme_format}"))
@@ -253,7 +276,7 @@ maintainer_email "#{email}"
 license          "#{license_name}"
 description      "Installs/Configures #{cookbook_name}"
 #{long_description}
-version          "0.0.1"
+version          "0.1.0"
 EOH
           end
         end

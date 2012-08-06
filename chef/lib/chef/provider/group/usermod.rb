@@ -35,11 +35,17 @@ class Chef
             a.failure_message Chef::Exceptions::Group, "Could not find binary /usr/sbin/usermod for #{@new_resource}"
             # No whyrun alternative: this component should be available in the base install of any given system that uses it
           end
+
+          requirements.assert(:modify, :create) do |a|
+            a.assertion { @new_resource.members.empty? || @new_resource.append } 
+            a.failure_message Chef::Exceptions::Group, "setting group members directly is not supported by #{self.to_s}, must set append true in group"
+            # No whyrun alternative - this action is simply not supported.
+          end
         end
         
         def modify_group_members
           case node[:platform]
-          when "openbsd", "netbsd", "aix"
+          when "openbsd", "netbsd", "aix", "solaris2"
             append_flags = "-G"
           when "solaris"
             append_flags = "-a -G"
@@ -50,10 +56,7 @@ class Chef
               @new_resource.members.each do |member|
                 Chef::Log.debug("#{@new_resource} appending member #{member} to group #{@new_resource.group_name}")
                 run_command(:command => "usermod #{append_flags} #{@new_resource.group_name} #{member}" )
-
               end
-            else
-              raise Chef::Exceptions::Group, "setting group members directly is not supported by #{self.to_s}"
             end
           else
             Chef::Log.debug("#{@new_resource} not changing group members, the group has no members")

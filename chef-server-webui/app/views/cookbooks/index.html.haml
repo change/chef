@@ -10,7 +10,7 @@
             %th Latest Version
             %th Other Versions
         %tbody.cookbook_versions
-          - @cl.keys.sort.each do |cookbook|
+          - @cl.keys.sort_by {|key,value| key.downcase}.each do |cookbook|
             - versions = @cl[cookbook]
             %tr
               %td= cookbook
@@ -24,4 +24,3 @@
                   = all_versions_link(cookbook)
               %td.show_more
                 = versions.length > 1 ? more_versions_link(cookbook) : ""
-= js_include_tag "cookbook_versions"
